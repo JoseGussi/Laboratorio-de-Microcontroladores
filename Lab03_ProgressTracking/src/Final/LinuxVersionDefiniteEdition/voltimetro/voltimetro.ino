@@ -16,7 +16,7 @@ float vRMS = 0;
 float vRMS1 = 0;
 float vRMS2 = 0;
 float vRMS3 = 0;
-
+float incomingByte = 0; // entrada para el serial port
 
 const int numMuestras = 60; // Número de muestras que deseas tomar
 const int pinSenal = A0; // Pin analógico al que está conectada la señal
@@ -36,6 +36,7 @@ float muestras3[numMuestras];
 
 static PCD8544 lcd;
 static const byte glyph[] = { B00010000, B00110100, B00110000, B00110100, B00010000 };
+
 
 void setup() {
   Serial.begin(9600);
@@ -150,6 +151,12 @@ void loop() {
     lcd.print("V1: ");
     lcd.print(voltage);
     lcd.print("V");
+    // read the incoming byte:
+    incomingByte = voltage;
+   // say what you got:
+    Serial.print("Voltage[DC]01: " );
+    Serial.println( incomingByte);
+    
   }
   else{
     //Lee voltaje AC del primer canal
@@ -159,6 +166,9 @@ void loop() {
     lcd.print("V1: ");
     lcd.print(vRMS);
     lcd.print("Vrms");
+    incomingByte = vRMS;
+    Serial.print("Voltage[AC]01: " );
+    Serial.println( incomingByte);
   }
     //Enciende LED de precaucion del canal 1
     if (vRMS > 13.5 ||voltage > 20 || vRMS < -13.5 ||voltage < -20) { // si el valor de la variable supera los 20
@@ -177,6 +187,11 @@ void loop() {
     lcd.print("V1: ");
     lcd.print(voltage1);
     lcd.print("V");
+    incomingByte = voltage1;
+    Serial.print("Voltage[DC]02: " );
+    Serial.println( incomingByte);
+    
+     
   }
   else{
     //Lee voltaje AC del segundo canal
@@ -186,6 +201,9 @@ void loop() {
     lcd.print("V2: ");
     lcd.print(vRMS1);
     lcd.print("Vrms");
+    incomingByte = vRMS1;
+    Serial.print("Voltage[AC]02: " ) ;
+    Serial.println( incomingByte) ;
   }
      //Enciende LED de precaucion del canal 2
     if (vRMS1 > 13.5 ||voltage1 > 20 || vRMS1 < -13.5 ||voltage1 < -20) { // si el valor de la variable supera los 20
@@ -204,6 +222,10 @@ void loop() {
     lcd.print("V3: ");
     lcd.print(voltage2);
     lcd.print("V");
+    incomingByte = voltage2;
+    Serial.print("Voltage[DC]03 : " );
+    Serial.println( incomingByte); 
+     
   }
   else{
     //Lee voltaje AC del tercer canal
@@ -213,6 +235,9 @@ void loop() {
     lcd.print("V3: ");
     lcd.print(vRMS2);
     lcd.print("Vrms");
+    incomingByte = vRMS2;
+    Serial.print("Voltage[AC]03: " );
+    Serial.println( incomingByte);
   }
      //Enciende LED de precaucion del canal 3
     if (vRMS2 > 13.5 ||voltage2 > 20 || vRMS2 < -13.5 ||voltage2 < -20) { // si el valor de la variable supera los 20
@@ -233,6 +258,10 @@ void loop() {
     lcd.print("V4: ");
     lcd.print(voltage3);
     lcd.print("V");
+    incomingByte = voltage3;
+    Serial.print("Voltage[DC]04: " ) ;
+    Serial.println( incomingByte) ;
+    Serial.println(" ") ;
   }
   else{
     //Lee voltaje AC del cuarto canal
@@ -242,14 +271,22 @@ void loop() {
     lcd.print("V3: ");
     lcd.print(vRMS3);
     lcd.print("Vrms");
+    incomingByte = vRMS3;
+    Serial.print("Voltage[AC]04: " ) ;
+    Serial.println( incomingByte) ;
+    Serial.println(" ") ;
   }
-     //Enciende LED de precaucion del canal 3
+     //Enciende LED de precaucion del canal 4
     if (vRMS3 > 13.5 ||voltage3 > 20 || vRMS3 < -13.5 ||voltage3 < -20) { // si el valor de la variable supera los 20
     digitalWrite(11, HIGH); // enciende el LED
   } else {
     digitalWrite(11, LOW); // apaga el LED
   }
+
   
+ 
+    
+ 
 
 
   delay(500); // Espera un segundo antes de tomar más muestras
