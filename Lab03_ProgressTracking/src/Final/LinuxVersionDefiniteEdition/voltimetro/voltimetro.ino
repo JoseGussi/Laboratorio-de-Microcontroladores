@@ -91,7 +91,7 @@ float calcularVRMS() {
   float sumaCuadrados = 0;
   for (int i = 0; i < numMuestras; i++) {
     //float voltaje = (muestras[i] / 1023.0) * 5.0; // Convierte la muestra a voltaje (asumiendo una referencia de 5V)
-    float voltajeA = ((511.0 - muestras[i])) * 56.0/1023.0;
+    float voltajeA = ((511.0 - muestras[i])) * 55.0/1023.0;
     sumaCuadrados += pow(voltajeA, 2); // Eleva al cuadrado y suma al acumulador
   }
   float promedioCuadrados = sumaCuadrados / numMuestras; // Calcula el promedio de los cuadrados
@@ -105,7 +105,7 @@ float calcularVRMS1() {
   float sumaCuadrados1 = 0;
   for (int i = 0; i < numMuestras; i++) {
     //float voltaje = (muestras[i] / 1023.0) * 5.0; // Convierte la muestra a voltaje (asumiendo una referencia de 5V)
-    float voltajeA1 = ((511.0 - muestras1[i])) * 56.0/1023.0;
+    float voltajeA1 = ((511.0 - muestras1[i])) * 55.0/1023.0;
     sumaCuadrados1 += pow(voltajeA1, 2); // Eleva al cuadrado y suma al acumulador
   }
   float promedioCuadrados1 = sumaCuadrados1 / numMuestras; // Calcula el promedio de los cuadrados
@@ -118,7 +118,7 @@ float calcularVRMS1() {
 float calcularVRMS2() {
   float sumaCuadrados2 = 0;
   for (int i = 0; i < numMuestras; i++) {
-    float voltajeA2 = ((511.0 - muestras2[i])) * 56.0/1023.0;
+    float voltajeA2 = ((511.0 - muestras2[i])) * 55.0/1023.0;
     sumaCuadrados2 += pow(voltajeA2, 2); // Eleva al cuadrado y suma al acumulador
   }
   float promedioCuadrados2 = sumaCuadrados2 / numMuestras; // Calcula el promedio de los cuadrados
@@ -130,7 +130,7 @@ float calcularVRMS2() {
 float calcularVRMS3() {
   float sumaCuadrados3 = 0;
   for (int i = 0; i < numMuestras; i++) {
-    float voltajeA3 = ((511.0 - muestras3[i])) * 56.0/1023.0;
+    float voltajeA3 = ((511.0 - muestras3[i])) * 55.0/1023.0;
     sumaCuadrados3 += pow(voltajeA3, 2); // Eleva al cuadrado y suma al acumulador
   }
   float promedioCuadrados3 = sumaCuadrados3 / numMuestras; // Calcula el promedio de los cuadrados
