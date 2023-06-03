@@ -59,9 +59,7 @@
 
 //Variables globales
 char *axes[] = { "X: ", "Y: ", "Z: " };
-
-/* Convert degrees to radians */
-#define d2r(d) ((d) * 6.2831853 / 360.0)
+float_t voltage;
 
 void spi_setup(void)
 {
@@ -94,33 +92,6 @@ void spi_setup(void)
 	gpio_mode_setup(GPIOG, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO13 | GPIO14);
 }
 
-static void my_usart_print_int(uint32_t usart, int32_t value)
-{
-	int8_t i;
-	char buffer[25];
-	int8_t nr_digits = 0;
-
-	if (value < 0) {
-		usart_send_blocking(usart, '-');
-		value = value * -1;
-	}
-
-	if (value == 0) {
-		usart_send_blocking(usart, '0');
-	}
-
-	while (value > 0) {
-		buffer[nr_digits++] = "0123456789"[value % 10];
-		value /= 10;
-	}
-
-	for (i = nr_digits-1; i >= 0; i--) {
-		usart_send_blocking(usart, buffer[i]);
-	}
-
-	usart_send_blocking(usart, '\r');
-	usart_send_blocking(usart, '\n');
-}
 
 int print_decimal(int);
 int print_decimal(int num)
@@ -155,6 +126,37 @@ int print_decimal(int num)
 	return len; 
 }
 
+// Battery voltage processing
+// Analog digital converter setup
+static void adc_setup(void)
+{
+	rcc_periph_clock_enable(RCC_ADC1);
+  	rcc_periph_clock_enable(RCC_GPIOA);
+	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
+	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
+
+	adc_power_off(ADC1);
+	adc_disable_scan_mode(ADC1);
+	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_3CYC);
+
+	adc_power_on(ADC1);
+
+} 
+
+static uint16_t read_adc_naiive(uint8_t channel)
+{
+	uint8_t channel_array[16];
+	channel_array[0] = channel;
+	adc_set_regular_sequence(ADC1, 1, channel_array);
+	adc_start_conversion_regular(ADC1);
+	while (!adc_eoc(ADC1));
+	uint16_t reg16 = adc_read_regular(ADC1);
+	return reg16;
+}
+
+void battery_read(void){
+	voltage = read_adc_naiive(0)*9/4095.0;
+}
 
 /*
  * This is our example, the heavy lifing is actually in lcd-spi.c but
@@ -166,6 +168,7 @@ int main(void)
 	clock_setup();
 	console_setup(115200);
 
+	adc_setup();
 	spi_setup();
 	//adc_setup();
 
@@ -236,7 +239,10 @@ int main(void)
 		char buff_x[25];
 		char buff_y[25];
 		char buff_z[25];
+		char buff_batt[20];
 		char lcd_out[3];
+
+		battery_read();
 
 		sprintf(buff_x, "Eje X: %.d", X);
 		gfx_fillScreen(LCD_GREY);
@@ -254,6 +260,11 @@ int main(void)
 		gfx_setTextSize(2);
 		gfx_setCursor(15, 85);
 		gfx_puts(buff_z);
+
+		sprintf(buff_batt, "Battery: %.2f", voltage);
+		gfx_setTextSize(2);
+		gfx_setCursor(15, 125);
+		gfx_puts(buff_batt);
 
 		lcd_show_frame();
 
@@ -326,7 +337,8 @@ int main(void)
 
 	    print_decimal(X);  console_puts("\t");
         print_decimal(Y);  console_puts("\t");
-        print_decimal(Z);  console_puts("\n");
+        print_decimal(Z);  console_puts("\t");
+		print_decimal(voltage); console_puts("\n");
 
 		int i;
 		for (i = 0; i < 80000; i++)    /* Wait a bit. */
