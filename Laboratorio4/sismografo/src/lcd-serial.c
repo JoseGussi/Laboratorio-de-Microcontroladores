@@ -163,7 +163,7 @@ static void adc_setup(void)
 {
 	rcc_periph_clock_enable(RCC_ADC1); //Habilita el reloj para el periferico ADC1
   	rcc_periph_clock_enable(RCC_GPIOA); //Habilita el reloj para el puerto GPIOA
-	//gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0); //Configura pin GPIO0 como entrada analogica
+	//gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0); //Configura pin GPIO0 como entrada analogica
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1); //Configura pin GPIO1 como entrada analogica
 
 	adc_power_off(ADC1); //Apaga el ADC (durante configuracion)
@@ -190,7 +190,7 @@ static uint16_t read_adc_naiive(uint8_t channel)
 //Funcion de lectura y escalamiento del dato analogico de voltaje
 //Recibe 5v y maneja esto en escala de 0 a 9
 void battery_read(void){
-	voltage = read_adc_naiive(0)*9/4095.0;
+	voltage = read_adc_naiive(1)*9/4095.0;
 }
 
 
@@ -201,13 +201,13 @@ int main(void)
 	clock_setup();
 	console_setup(115200);
 
-	//Empieza la configuracion del boton
-	button_setup();
-	open_serial = 0; //Habilita la comunicacion
-
 	//Empieza la configuracion del adc y de los puertos spi
 	adc_setup();
 	spi_setup();
+
+	//Empieza la configuracion del boton
+	button_setup();
+	open_serial = 1; //Habilita la comunicacion
 
 	//EMpieza la configuracion de lectura y escritura del giroscopio
     gpio_clear(GPIOC, GPIO1);
@@ -281,7 +281,9 @@ int main(void)
 		char buff_y[25]; //Almacena valor de eje Y
 		char buff_z[25]; //Almacena valor de eje Z
 		char buff_batt[20]; //Almacena valor de la bateria
-		//char lcd_out[3];
+	
+
+		battery_read();
 
 		//Lee el boton USR del pin GPIO0
 		//Si se toca el boton cambia el valor de open serial
@@ -294,8 +296,6 @@ int main(void)
 				open_serial = 1;
 			}
 		}
-
-		battery_read();
 
 		sprintf(buff_x, "Eje X: %.d", X); //Formatea una cadena de texto para mostrar valor de X
 		gfx_fillScreen(LCD_GREY); //Llena el fondo de la pantalla de color gris
