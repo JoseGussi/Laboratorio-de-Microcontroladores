@@ -69,6 +69,7 @@
 //char *axes[] = { "X: ", "Y: ", "Z: " };
 float_t voltage;
 uint8_t open_serial;
+float_t bat_percent;
 
 
 void spi_setup(void)
@@ -163,8 +164,8 @@ static void adc_setup(void)
 {
 	rcc_periph_clock_enable(RCC_ADC1); //Habilita el reloj para el periferico ADC1
   	rcc_periph_clock_enable(RCC_GPIOA); //Habilita el reloj para el puerto GPIOA
-	//gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0); //Configura pin GPIO0 como entrada analogica
-	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1); //Configura pin GPIO1 como entrada analogica
+	//gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO1); //Configura pin GPIO1 como entrada analogica
+	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0); //Configura pin GPIO0 como entrada analogica
 
 	adc_power_off(ADC1); //Apaga el ADC (durante configuracion)
 	adc_disable_scan_mode(ADC1); //Deshabilita el modo escaneo
@@ -190,7 +191,7 @@ static uint16_t read_adc_naiive(uint8_t channel)
 //Funcion de lectura y escalamiento del dato analogico de voltaje
 //Recibe 5v y maneja esto en escala de 0 a 9
 void battery_read(void){
-	voltage = read_adc_naiive(1)*9/4095.0;
+	voltage = read_adc_naiive(0)*9/4095.0;
 }
 
 
@@ -206,7 +207,7 @@ int main(void)
 	spi_setup();
 
 	//Empieza la configuracion del boton
-	button_setup();
+	//button_setup();
 	open_serial = 1; //Habilita la comunicacion
 
 	//EMpieza la configuracion de lectura y escritura del giroscopio
@@ -260,12 +261,14 @@ int main(void)
 	gfx_setCursor(15, 49);
 	gfx_puts("Laboratorio micros");
 	gfx_setCursor(15, 65);
-	gfx_puts("Laboratorio 4");
+	gfx_puts("IE-0624");
 	gfx_setCursor(15, 79);
-	gfx_puts("Jose Mario Gonzalez");
+	gfx_puts("Laboratorio 4");
 	gfx_setCursor(15, 89);
-	gfx_puts("Jose Carlos Gonzalez");
+	gfx_puts("Jose Mario Gonzalez");
 	gfx_setCursor(15, 99);
+	gfx_puts("Jose Carlos Gonzalez");
+	gfx_setCursor(15, 109);
 	gfx_puts("28/05/2023");
 	lcd_show_frame();
 	console_puts("Now it has a bit of structured graphics.\n");
@@ -281,6 +284,7 @@ int main(void)
 		char buff_y[25]; //Almacena valor de eje Y
 		char buff_z[25]; //Almacena valor de eje Z
 		char buff_batt[20]; //Almacena valor de la bateria
+		char buff_percent[30]; 
 	
 
 		battery_read();
@@ -288,17 +292,19 @@ int main(void)
 		//Lee el boton USR del pin GPIO0
 		//Si se toca el boton cambia el valor de open serial
 		//Habilita o inhabilita la comunicacion mediante el boton
-		if(gpio_get(GPIOA, GPIO0)){
+		/*if(gpio_get(GPIOA, GPIO0)){
 			if(open_serial){
 				open_serial = 0;
 			}
 			else{
 				open_serial = 1;
 			}
-		}
+		}*/
+
+		bat_percent = voltage * 11.1;
 
 		sprintf(buff_x, "Eje X: %.d", X); //Formatea una cadena de texto para mostrar valor de X
-		gfx_fillScreen(LCD_GREY); //Llena el fondo de la pantalla de color gris
+		gfx_fillScreen(LCD_BLACK); //Llena el fondo de la pantalla de color gris
 
 		gfx_setTextSize(2); //Se ajusta tamano de text en 2
 		gfx_setCursor(15, 25); //Establece coordenada en pantalla de la variable X
@@ -314,10 +320,15 @@ int main(void)
 		gfx_setCursor(15, 85); //Establece coordenada en pantalla de la variable Z
 		gfx_puts(buff_z); //Imprime en pantalla variable Z
 
-		sprintf(buff_batt, "Battery: %.2f", voltage); //Formatea una cadena de texto para mostrar valor de la bateria
-		gfx_setTextSize(2); //Se ajusta tamano de text en 2
+		sprintf(buff_batt, "Voltage: %.2f", voltage); //Formatea una cadena de texto para mostrar valor de la bateria
+		gfx_setTextSize(1); //Se ajusta tamano de text en 2
 		gfx_setCursor(25, 150); //Establece coordenada en pantalla de la bateria
 		gfx_puts(buff_batt);  //Imprime en pantalla variable buff_batt
+
+		sprintf(buff_percent, "Batt percentage: %.2f", bat_percent); //Formatea una cadena de texto para mostrar valor de la bateria
+		gfx_setTextSize(1); //Se ajusta tamano de text en 2
+		gfx_setCursor(25, 185); //Establece coordenada en pantalla de la bateria
+		gfx_puts(buff_percent);  //Imprime en pantalla variable buff_batt
 
 		lcd_show_frame();
 
@@ -410,10 +421,13 @@ int main(void)
 			print_decimal(Z);   //Convierte Z en cadena de caracteres e imprime su representacion decimal en consola
 			console_puts("\t"); //Imprime espacio en la consola entre valores
 			print_decimal(voltage); //Convierte el valor de voltaje en cadena de caracteres e imprime su representacion decimal en consola
+			console_puts("\t"); //Imprime nueva linea
+			print_decimal(bat_percent); //Convierte el valor de voltaje en cadena de caracteres e imprime su representacion decimal en consola
 			console_puts("\n"); //Imprime nueva linea
 			gpio_toggle(GPIOG, GPIO13); //Enciende LED de comunicacion activa
 		}
 		else{
+			//Si la comunicación serial no está habilitada
 			print_decimal(0);   //Convierte X en cadena de caracteres e imprime su representacion decimal en consola
 			console_puts("\t"); //Imprime espacio en la consola entre valores
 			print_decimal(0);   //Convierte Y en cadena de caracteres e imprime su representacion decimal en consola
@@ -429,7 +443,7 @@ int main(void)
 			gpio_toggle(GPIOG, GPIO14); //Enciende el LED de bateria baja
 		}
 		else{
-			gpio_toggle(GPIOG, GPIO14); //Apaga el LED de bateria baja
+			gpio_clear(GPIOG, GPIO14); //Apaga el LED de bateria baja
 		}
 
 		int i;

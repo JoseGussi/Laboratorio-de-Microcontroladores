@@ -1,24 +1,14 @@
 #!/usr/bin/python3
-
-
 import serial
 import paho.mqtt.client as mqtt
 import json, time
 import ssl, socket
-
-
-
-
 
 # Configuración de la conexión serial
 serial_port = "/dev/ttyACM0"
 baud_rate = 115200
 ser = serial.Serial(serial_port, baud_rate, timeout=1)
 print("Connected to MCU")
-
-
-
-
 
 
 # Callback que se ejecuta al conectarse al broker MQTT
@@ -32,11 +22,9 @@ def on_disconnect(client, userdata, rc):
     else:
         print("System disconnected via code: ", rc)
 
-
 # Callback que se ejecuta al recibir un mensaje MQTT
 def on_message(client, userdata, msg):
     print("Mensaje recibido:", msg.topic, msg.payload.decode())
-
 
 # Configuración del cliente MQTT
 broker = "iot.eie.ucr.ac.cr"
@@ -47,8 +35,6 @@ username = "Device_stm32f429i_JC_JM"
 password = "470xtxejzpo2mmdqjram"
 button = {"enabled: ": False}
 
-
-
 # Inicialización del cliente MQTT
 client = mqtt.Client()
 client.connected = False
@@ -57,10 +43,6 @@ client.on_connect = on_connect
 client.on_message = on_message
 client.on_disconnect = on_disconnect
 
-
-
-
-
 # Conexión al broker MQTT
 client.connect(broker, port)
 Datapkg = dict()
@@ -68,8 +50,6 @@ Datapkg = dict()
 try:
     while True:
         # Lectura del puerto serial
-        
-        
             data = ser.readline().strip().decode("utf-8").replace('\r', "").replace('\n', "")
             data = data.split('\t')
 
@@ -78,15 +58,16 @@ try:
                 Datapkg["y"] = data[1]
                 Datapkg["z"] = data[2]
                 Datapkg["Battery"] = data[3]
+                Datapkg["Batt percentage"] = data[4]
 
-                if(data[3] == "1"):
-                    alarm = 0
+                if(int(data[3]) < 7):
+                    alarm = "ON"
                 else:
-                    alarm = 1
+                    alarm = "OFF"
                 Datapkg["BatteryAlarm"] = alarm
             #print(data)
 
-            #print("Dato recibido por el puerto serial X:", data)
+            print("Dato recibido por el puerto serial:", data)
             #print("Dato recibido por el puerto serial Y:", data[1])
             #print("Dato recibido por el puerto serial Z:", data[2])
 
