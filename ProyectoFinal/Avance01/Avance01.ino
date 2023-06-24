@@ -7,7 +7,7 @@
 Servo myservo;  // crea el objeto servo
 
 // GPIO de salida del servo
-static const int servoPin = 13;
+static const int servoPin = 25;
 
 // Reemplazar con tus credenciales de Wifi
 const char* ssid     = "QQice02";
@@ -16,7 +16,7 @@ const char* password = "monica321";
 // Inicializa Bot Telegram
 #define BOTtoken "6203517484:AAE9qgnCQEj7QHX56B6H3dnD7fysqqfhGZo"  // Tu Bot Token (Obtener de Botfather)
 
-#define CHAT_ID "1076728481"
+#define CHAT_ID "441224527"
 
 WiFiClientSecure client;
 
@@ -36,10 +36,18 @@ void handleNewMessages(int numNewMessages) {
 
     if (text == "/comida") {
       bot.sendMessage(chat_id, "Alimentando", "");
-      myservo.write(80);             
-      delay(500);     
-      myservo.write(0); 
-      
+      //myservo.write(0);             
+      //delay(5000);
+
+      myservo.write(180); 
+      delay(1000); 
+      myservo.write(90);  
+      delay(5000); 
+      myservo.write(180); 
+      delay(1000); 
+      myservo.write(90);    
+
+        
     }
   }
 }
