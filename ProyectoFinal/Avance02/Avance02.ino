@@ -49,8 +49,17 @@ long readUltrasonicDistance(int triggerPin, int echoPin)
 }
 
 
+String porcentaje(int distancia)
+{
+  int porcentaje;
+  porcentaje = distancia/9 *100;
+  String tmp = String(porcentaje);
+  return tmp;
 
-void handleNewMessages(int numNewMessages) {
+}
+
+
+void handleNewMessages(int numNewMessages, int distancia) {
 
   for (int i=0; i<numNewMessages; i++) {
     // Chat id of the requester
@@ -64,9 +73,26 @@ void handleNewMessages(int numNewMessages) {
 
     if (text == "/comida") {
       bot.sendMessage(chat_id, "Alimentando", "");
-      myservo.write(80);             
-      delay(500);     
-      myservo.write(0); 
+      
+      myservo.write(180); 
+      delay(1000); 
+      myservo.write(90);  
+      delay(5000); 
+      myservo.write(180); 
+      delay(1000); 
+      myservo.write(90);    
+    }
+
+    if (text == "/cantidad") {
+      bot.sendMessage(chat_id, "Al contenedor"+porcentaje(distancia),  "");
+      
+      myservo.write(180); 
+      delay(1000); 
+      myservo.write(90);  
+      delay(5000); 
+      myservo.write(180); 
+      delay(1000); 
+      myservo.write(90);    
       
     }
   }
@@ -105,10 +131,9 @@ void loop() {
   //Mostramos la disstancia
   Serial.println(DISTANCIA);
   delay(1000);
-}
 
   while(numNewMessages) {
-    handleNewMessages(numNewMessages);
+    handleNewMessages(numNewMessages, DISTANCIA);
     numNewMessages = bot.getUpdates(bot.last_message_received + 1);
   }
 }
