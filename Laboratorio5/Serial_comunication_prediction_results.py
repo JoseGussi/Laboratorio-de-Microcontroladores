@@ -29,7 +29,7 @@ while(counter < samples):
     data = ser.readline().decode("utf-8").replace('\r', "")
     #print(data)
     data = data.split('\n')
-    print(len(data))
+#    print(len(data))
 
     if(True):    
         writeFile.writerow(data)

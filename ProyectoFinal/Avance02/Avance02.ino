@@ -86,14 +86,6 @@ void handleNewMessages(int numNewMessages, int distancia) {
     if (text == "/cantidad") {
       bot.sendMessage(chat_id, "Al contenedor"+porcentaje(distancia),  "");
       
-      myservo.write(180); 
-      delay(1000); 
-      myservo.write(90);  
-      delay(5000); 
-      myservo.write(180); 
-      delay(1000); 
-      myservo.write(90);    
-      
     }
   }
 }
